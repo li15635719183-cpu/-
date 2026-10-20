@@ -1,1 +1,17 @@
-{"name":"li-linjing-portfolio","version":"1.0.0","private":true,"scripts":{"dev":"node server.cjs","start":"node server.cjs"}}
+{
+  "name": "li-linjing-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node server.cjs",
+    "start": "node server.cjs",
+    "build": "node scripts/check-static.cjs",
+    "deploy": "wrangler deploy"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "devDependencies": {
+    "wrangler": "4.151.3"
+  }
+}

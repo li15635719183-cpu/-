@@ -14,6 +14,21 @@
 
 仓库 Settings → Pages → Deploy from a branch，选择 `main` 和 `/ (root)`。`.nojekyll` 用于直接发布静态文件。
 
+## Cloudflare Workers
+
+仓库已包含 `wrangler.jsonc`，使用 Workers Static Assets 直接托管网页。Worker 名称与现有项目一致，为 `pro`。
+
+在 Cloudflare 的 Workers 项目 → Settings → Build 中使用以下设置：
+
+- 生产分支：`main`
+- 根目录：仓库根目录（留空或 `/`）
+- 构建命令：`npm run build`，运行静态文件完整性检查；纯静态项目也可留空
+- 部署命令：`npx wrangler deploy`
+
+`.assetsignore` 只公开 HTML、CSS、浏览器 JavaScript 和 `assets/`，不发布开发工具、依赖和本地预览服务器。首页使用 `/`，已有 `.html` 案例链接由 Cloudflare 自动处理。
+
+本机使用 Node.js 22 或更新版本，安装依赖后可运行 `npm run deploy`。`npm start` 仅用于本地预览。
+
 ## 页面
 
 - `index.html`：原有交互信箱封面、关于我、作品轮播和联系区。

@@ -26,6 +26,7 @@ async function main() {
         : [];
     if (name.endsWith('.html')) {
       for (const match of content.matchAll(/\bsrcset=["']([^"']+)["']/g)) {
+        if (match[1].startsWith('data:')) continue;
         for (const variant of match[1].split(',')) references.push(variant.trim().split(/\s+/)[0]);
       }
     }

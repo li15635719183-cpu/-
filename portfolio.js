@@ -13,11 +13,87 @@
 
   const root = document.documentElement;
   const body = document.body;
-  document.querySelectorAll('img[data-preview]').forEach(image => {
-    const ready = () => image.classList.add('image-loaded');
+  const imageObserver = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
+    entries.forEach(entry => { if (entry.isIntersecting) entry.target.dispatchEvent(new Event('image:visible')); });
+  }, { rootMargin: '240px' }) : null;
+  const watchedImages = new WeakSet();
+  function watchImage(image) {
+    if (watchedImages.has(image)) return;
+    watchedImages.add(image);
+    if (image.nextElementSibling?.classList.contains('image-load-status')) image.nextElementSibling.remove();
+    if (!image.complete || !image.naturalWidth) image.classList.remove('image-loaded');
+    const candidates = (image.getAttribute('srcset') || '').split(',').map(item => {
+      const [url, width] = item.trim().split(/\s+/);
+      return { url, width: parseInt(width, 10) };
+    }).filter(item => item.url && item.width).sort((a,b) => a.width-b.width);
+    const status = document.createElement('span');
+    status.className = 'image-load-status';
+    status.textContent = '图片加载中';
+    status.setAttribute('aria-live', 'polite');
+    image.after(status);
+    let attempts = 0, timer = 0, visible = false;
+    const ready = () => {
+      if (!image.naturalWidth) return;
+      clearTimeout(timer);
+      image.classList.add('image-loaded');
+      image.classList.remove('image-load-error');
+      image.dataset.imageState = 'loaded';
+      status.remove();
+      imageObserver?.unobserve(image);
+    };
+    const watch = () => {
+      clearTimeout(timer);
+      if (visible && !image.classList.contains('image-loaded')) timer = setTimeout(retry, 10000);
+    };
+    const retry = () => {
+      if (image.complete && image.naturalWidth) { ready(); return; }
+      clearTimeout(timer);
+      if (attempts >= 2) {
+        image.classList.add('image-load-error');
+        image.dataset.imageState = 'error';
+        status.textContent = '图片未加载 · 点击重试';
+        return;
+      }
+      attempts++;
+      const fallback = candidates.find(item => item.width >= Math.max(640, Math.min(960, image.clientWidth*2))) || candidates[0];
+      const url = new URL(attempts === 1 ? image.currentSrc || image.src : fallback?.url || image.src, location.href);
+      url.searchParams.set('image_retry', String(attempts));
+      image.removeAttribute('srcset');
+      image.classList.remove('image-load-error');
+      image.dataset.imageState = 'retrying';
+      status.textContent = '正在重试加载图片';
+      image.loading = 'eager';
+      image.fetchPriority = 'high';
+      image.src = url.href;
+      watch();
+    };
+    image.addEventListener('load', ready);
+    image.addEventListener('error', () => { if (visible) retry(); });
+    image.addEventListener('image:visible', () => {
+      visible = true;
+      image.fetchPriority = 'high';
+      if (image.complete && image.naturalWidth) ready();
+      else if (image.complete) retry();
+      else watch();
+    });
+    image.closest('a')?.addEventListener('click', event => {
+      if (!image.classList.contains('image-load-error') || !event.target.closest('img,.image-load-status')) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      attempts = 0;
+      retry();
+    }, true);
     if (image.complete && image.naturalWidth) ready();
-    else image.addEventListener('load', ready, { once: true });
-  });
+    else if (imageObserver) imageObserver.observe(image);
+    else { visible = true; watch(); }
+  }
+  document.querySelectorAll('img[data-preview]').forEach(watchImage);
+  const carouselImageObserver = new MutationObserver(records => records.forEach(record => record.addedNodes.forEach(node => {
+    if (node.nodeType !== 1) return;
+    if (node.matches('img[data-preview]')) watchImage(node);
+    node.querySelectorAll('img[data-preview]').forEach(watchImage);
+  })));
+  document.querySelectorAll('[data-project-carousel]').forEach(track => carouselImageObserver.observe(track,{childList:true,subtree:true}));
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
   const header = document.querySelector('.site-header');

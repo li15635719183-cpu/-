@@ -1,0 +1,51 @@
+{
+  "width": 2400,
+  "height": 1210,
+  "sourceWidth": 4724,
+  "sourceHeight": 2657,
+  "matrix": [
+    [
+      0.9704295326865782,
+      -0.5169075737892261,
+      211.7951459413531
+    ],
+    [
+      0.17703237905340288,
+      1.1004827497954301,
+      -1383.7957704552152
+    ]
+  ],
+  "center": [
+    2408.933,
+    1447.663
+  ],
+  "ellipse": [
+    [
+      629.7604820728227,
+      185.13508984002067
+    ],
+    [
+      -256.1789835318382,
+      455.11447433687215
+    ]
+  ],
+  "innerCenter": [
+    2444.56524,
+    1479.258
+  ],
+  "innerEllipse": [
+    [
+      362.40106762254425,
+      112.38324409181634
+    ],
+    [
+      -161.6114525286143,
+      252.01065273853732
+    ]
+  ],
+  "backOrbit": "back-orbit.webp",
+  "backOrbitSource": "../hero.webp",
+  "source": "../original-source/rings-original.png",
+  "cubeRGB": "../hero.webp",
+  "method": "Original artwork layers only; perspective reprojection, fixed lighting and camera-space side depth"
+}

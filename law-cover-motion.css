@@ -1,0 +1,9 @@
+/* The original cover layers animate automatically while visible. */
+[data-law-motion]{position:relative;overflow:hidden;user-select:none;-webkit-user-select:none}
+[data-law-motion] img{-webkit-user-drag:none}
+.project-law-case .project-media[data-law-motion]{aspect-ratio:4093/2063;transform:none!important}
+[data-law-motion] .law-motion-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;opacity:0;z-index:1}
+[data-law-motion].is-law-running .law-motion-canvas{opacity:1}
+[data-law-motion]>.project-open,[data-law-motion]>.image-zoom-hint{z-index:2}
+@media(prefers-reduced-motion:reduce){[data-law-motion] .law-motion-canvas{display:none}}
+

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>手机端预览 · 李临静作品集</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; }
+    body { background: #171817; color: #f2f3ee; font: 13px/1.5 Arial, "Microsoft YaHei", sans-serif; }
+    .toolbar { height: 58px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 20px; background: #101110; border-bottom: 1px solid #30332d; }
+    .title { white-space: nowrap; font-weight: 500; }
+    .title::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 9px; border-radius: 50%; background: #b5ff27; vertical-align: middle; }
+    .controls { display: flex; align-items: center; gap: 12px; }
+    select, button, a { font: inherit; color: inherit; }
+    select { max-width: 112px; background: #22251f; border: 1px solid #42483a; border-radius: 5px; padding: 5px 6px; }
+    button { background: none; border: 0; cursor: pointer; padding: 5px 0; }
+    a { text-decoration: none; white-space: nowrap; }
+    button:hover, a:hover { color: #b5ff27; }
+    :focus-visible { outline: 2px solid #b5ff27; outline-offset: 4px; }
+    .stage { height: calc(100dvh - 58px); display: grid; place-items: center; overflow: hidden; padding: 14px; }
+    .device-space { position: relative; flex: none; }
+    .device { position: absolute; top: 0; left: 0; transform-origin: top left; padding: 7px; border: 1px solid #4c5048; border-radius: 27px; background: #050505; box-shadow: 0 12px 45px #0006; }
+    iframe { display: block; border: 0; border-radius: 20px; background: #000; }
+    @media (max-width: 480px) { .toolbar { padding: 0 12px; gap: 8px; font-size: 11px; } .controls { gap: 10px; } select { max-width: 96px; } }
+  </style>
+</head>
+<body>
+  <header class="toolbar">
+    <span class="title">手机端预览</span>
+    <div class="controls">
+      <select id="size" aria-label="手机预览尺寸">
+        <option value="390,844">390 × 844</option>
+        <option value="360,800">360 × 800</option>
+        <option value="430,932">430 × 932</option>
+      </select>
+      <button id="reload" type="button">刷新</button>
+      <a href="index.html" target="_blank" rel="noopener">电脑端 ↗</a>
+    </div>
+  </header>
+  <main class="stage" aria-label="手机屏幕预览">
+    <div class="device-space">
+      <div class="device">
+        <iframe id="screen" src="index.html" title="李临静作品集手机预览" width="390" height="844"></iframe>
+      </div>
+    </div>
+  </main>
+  <script>
+    const stage = document.querySelector('.stage');
+    const space = document.querySelector('.device-space');
+    const device = document.querySelector('.device');
+    const screen = document.querySelector('#screen');
+    const size = document.querySelector('#size');
+    function fitPhone() {
+      const [width, height] = size.value.split(',').map(Number);
+      screen.width = width;
+      screen.height = height;
+      const frameWidth = width + 16;
+      const frameHeight = height + 16;
+      const scale = Math.min(1, (stage.clientWidth - 28) / frameWidth, (stage.clientHeight - 28) / frameHeight);
+      device.style.width = frameWidth + 'px';
+      device.style.height = frameHeight + 'px';
+      device.style.transform = 'scale(' + scale + ')';
+      space.style.width = frameWidth * scale + 'px';
+      space.style.height = frameHeight * scale + 'px';
+    }
+    size.addEventListener('change', fitPhone);
+    document.querySelector('#reload').addEventListener('click', () => { screen.src = 'index.html'; });
+    new ResizeObserver(fitPhone).observe(stage);
+    fitPhone();
+  </script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+{
+  "sourceSize": [
+    4724,
+    2657
+  ],
+  "formula": "H(u) = C0 + L u / (1 + dot(p,u))",
+  "C0": [
+    2462.1415329262236,
+    1494.842926536259
+  ],
+  "L": [
+    [
+      622.5267954337558,
+      179.93371089614837
+    ],
+    [
+      -254.82360670961222,
+      447.72719408553866
+    ]
+  ],
+  "p": [
+    0.046345614971135665,
+    0.12975419430893856
+  ],
+  "homography": [
+    [
+      736.6362589231962,
+      499.4069017755654,
+      2462.1415329262236
+    ],
+    [
+      -185.54419199403713,
+      641.6893336366668,
+      1494.842926536259
+    ],
+    [
+      0.046345614971135665,
+      0.12975419430893856,
+      1.0
+    ]
+  ],
+  "inverseHomography": [
+    [
+      0.0013794322370628068,
+      -0.0005543696354013874,
+      -2.56766187456342
+    ],
+    [
+      0.0007851028539327377,
+      0.0019179838557955985,
+      -4.8001189443334935
+    ],
+    [
+      -0.00016580102359937582,
+      -0.0002231738482323077,
+      1.7418354348236458
+    ]
+  ],
+  "outerRadius": 1.0,
+  "discRadius": 0.57843,
+  "areaRatioRadiusInitial": 0.5725196504341984,
+  "outerProjectedCenter": [
+    2408.9328753508094,
+    1447.6627299480222
+  ],
+  "discProjectedCenter": [
+    2444.5652395267216,
+    1479.2580007804136
+  ],
+  "predictedDiscAxes": [
+    390.47274149711103,
+    280.7856877862311
+  ],
+  "predictedDiscAngleDeg": -22.481697762753328,
+  "measuredDiscAxes": [
+    396.80322113613994,
+    275.9336188281888
+  ],
+  "measuredDiscAngleDeg": -24.034310236166505,
+  "boundaryErrors": {
+    "outer": {
+      "rmsSourcePx": 1.4615865801718693e-13,
+      "maxSourcePx": 5.084229945850415e-13
+    },
+    "disc": {
+      "rmsSourcePx": 4.601775699769842,
+      "maxSourcePx": 7.220749820721245
+    }
+  },
+  "topMotion": "For both top-face textures use T(theta) = H R(theta) inverse(H), with homogeneous R=[[cos,-sin,0],[sin,cos,0],[0,0,1]]. Opposite signed theta is allowed. Do not rotate about projected ellipse centers separately.",
+  "perspectiveStrength": {
+    "normP": 0.13778268021712503,
+    "unitRingNearFarScaleRatio": 1.319600817695988
+  },
+  "limitations": "Outer conic and both ellipse centers are exact under the model. Disc conic has a small measured residual. Two raster silhouettes include side depth and do not determine a unique physical camera or extrusion depth; treat this as a conservative shared-plane perspective estimate. Side-face depth correction and fixed lighting remain separate requirements."
+}

@@ -1,0 +1,78 @@
+{
+  "padding": 80,
+  "width": 2560,
+  "height": 1370,
+  "coverWidth": 2400,
+  "coverHeight": 1210,
+  "source": "back-orbit.webp",
+  "outerRGBSource": "../original-source/cover-kv-original.png",
+  "outsideAlphaSource": "Original full linked rings far mask, original dilation/exclusion, intersected with original KV support",
+  "innerRgbaStrictlyIdentical": true,
+  "missingSourcePolicy": "Transparent where the original KV has no pixels; no linked RGB hard splice or invented continuation",
+  "kvToCover": [
+    [
+      0.5275063505872124,
+      0.00024464022819285867,
+      -13.34375
+    ],
+    [
+      0.0,
+      0.5271206892712551,
+      -195.53125
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "kvProjectedBounds": [
+    -13.34375,
+    -195.53125,
+    2412.795137500003,
+    1236.6556627500001
+  ],
+  "motionCoverageChecks": [
+    {
+      "peakAngleDeg": 1.2,
+      "floatAtPeakY": -10,
+      "visibleFarMaskKvBoundarySamples": 556,
+      "maxBoundaryPenetrationPx": 8.23812952496246,
+      "edges": {
+        "right": 556
+      }
+    },
+    {
+      "peakAngleDeg": 0.9,
+      "floatAtPeakY": -10,
+      "visibleFarMaskKvBoundarySamples": 283,
+      "maxBoundaryPenetrationPx": 3.152294815427922,
+      "edges": {
+        "right": 283
+      }
+    },
+    {
+      "peakAngleDeg": 0.8,
+      "floatAtPeakY": -10,
+      "visibleFarMaskKvBoundarySamples": 145,
+      "maxBoundaryPenetrationPx": 1.4281907856866383,
+      "edges": {
+        "right": 145
+      }
+    },
+    {
+      "peakAngleDeg": 0.7,
+      "floatAtPeakY": -10,
+      "visibleFarMaskKvBoundarySamples": 0,
+      "maxBoundaryPenetrationPx": 0.0,
+      "edges": {}
+    },
+    {
+      "peakAngleDeg": 0.6,
+      "floatAtPeakY": -10,
+      "visibleFarMaskKvBoundarySamples": 0,
+      "maxBoundaryPenetrationPx": 0.0,
+      "edges": {}
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "width": 512,
+  "height": 128,
+  "center": [
+    2408.933,
+    1447.663
+  ],
+  "ellipse": [
+    [
+      629.7604820728227,
+      185.13508984002067
+    ],
+    [
+      -256.1789835318382,
+      455.11447433687215
+    ]
+  ],
+  "coordinateSystem": "Original 4724x2657 ring canvas; image y increases downward",
+  "thetaFormula": "theta(x) = 2*pi*x/512; periodic wrap after the last column",
+  "radiusFormula": "r(y) = rMin + (rMax-rMin)*y/127",
+  "sampleUV": "u=fract(theta/(2*pi)+0.5/512); v=0.5/128+clamp((r-rMin)/(rMax-rMin),0,1)*127/128",
+  "sigmaThetaRadians": 0.65,
+  "colorSpace": "Original gamma-encoded RGB; no linearization or color grading",
+  "alpha": 255,
+  "filter": "Circular Gaussian normalized convolution: blur(RGB*alpha)/blur(alpha)",
+  "emptyRows": "Interpolate adjacent valid radial rows; extend nearest row at the boundaries",
+  "layers": {
+    "outer": {
+      "source": "outer.webp",
+      "output": "outer-light.webp",
+      "rMin": 0.74,
+      "rMax": 1.12,
+      "validRadialRows": [
+        13,
+        97
+      ],
+      "emptyRadialRowsFilled": 43,
+      "rgbMin": [
+        22,
+        53,
+        159
+      ],
+      "rgbMax": [
+        234,
+        242,
+        249
+      ]
+    },
+    "inner": {
+      "source": "inner.webp",
+      "output": "inner-light.webp",
+      "rMin": 0.52,
+      "rMax": 0.82,
+      "validRadialRows": [
+        0,
+        111
+      ],
+      "emptyRadialRowsFilled": 16,
+      "rgbMin": [
+        8,
+        31,
+        89
+      ],
+      "rgbMax": [
+        153,
+        187,
+        245
+      ]
+    },
+    "track": {
+      "source": "track.webp",
+      "output": "track-light.webp",
+      "rMin": 0.0,
+      "rMax": 1.12,
+      "validRadialRows": [
+        0,
+        117
+      ],
+      "emptyRadialRowsFilled": 10,
+      "rgbMin": [
+        7,
+        29,
+        90
+      ],
+      "rgbMax": [
+        236,
+        241,
+        248
+      ],
+      "alphaPolicy": "Original central track including disc; only source ellipse radius >= 1.10 excluded; no internal alpha cuts"
+    }
+  }
+}

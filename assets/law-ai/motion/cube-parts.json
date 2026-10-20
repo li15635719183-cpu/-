@@ -1,0 +1,112 @@
+{
+  "width": 2400,
+  "height": 1210,
+  "coordinateSystem": "Full original cover canvas",
+  "source": "cube.webp",
+  "sourceSHA256": "cc589c8582d942eca75b203a3bf90fc18f3674f4e3407f9ff579861ead963927",
+  "drawOrder": [
+    "static",
+    "right",
+    "front"
+  ],
+  "layers": [
+    {
+      "id": "static",
+      "name": "Rigid AI lid, all supports, left white post and main body",
+      "file": "cube-static.webp",
+      "drawOrder": 0,
+      "alphaBBox": [
+        1526,
+        211,
+        2113,
+        836
+      ],
+      "sourcePixels": 210855,
+      "recommendedMotion": {
+        "x": 0,
+        "yMin": -24,
+        "yMax": 0,
+        "maxLiftSourcePx": 24,
+        "extraLiftAboveCoreSourcePx": 0,
+        "periodSeconds": 6.8,
+        "phaseRadians": 0,
+        "carrier": null,
+        "maxLiftAt600pxCover": 6.0
+      },
+      "note": "Keep the complete central assembly in one image and float it without internal seams."
+    },
+    {
+      "id": "right",
+      "name": "Right white vertical block, all visible faces",
+      "file": "cube-right.webp",
+      "drawOrder": 1,
+      "alphaBBox": [
+        2013,
+        481,
+        2152,
+        764
+      ],
+      "sourcePixels": 30200,
+      "recommendedMotion": {
+        "x": 0,
+        "yMin": -52,
+        "yMax": 0,
+        "maxLiftSourcePx": 52,
+        "extraLiftAboveCoreSourcePx": 28,
+        "periodSeconds": 3.8,
+        "phaseRadians": 0,
+        "carrier": "core",
+        "maxLiftAt600pxCover": 13.0
+      },
+      "note": "Small upward-only movement keeps the missing rear overlap hidden."
+    },
+    {
+      "id": "front",
+      "name": "Front blue block, all visible faces",
+      "file": "cube-front.webp",
+      "drawOrder": 2,
+      "alphaBBox": [
+        1525,
+        617,
+        1775,
+        888
+      ],
+      "sourcePixels": 51112,
+      "recommendedMotion": {
+        "x": 0,
+        "yMin": -60,
+        "yMax": 0,
+        "maxLiftSourcePx": 60,
+        "extraLiftAboveCoreSourcePx": 36,
+        "periodSeconds": 4.6,
+        "phaseRadians": 0,
+        "carrier": "core",
+        "maxLiftAt600pxCover": 15.0
+      },
+      "note": "Upward-only motion moves its occlusion farther over the main cube."
+    }
+  ],
+  "motionFormula": "coreDy=-24*sin(pi*t/6.8)^2; rightDy=coreDy-28*sin(pi*t/3.8)^2; frontDy=coreDy-36*sin(pi*t/4.6)^2",
+  "motionLimits": "Use upward-only translation in the listed ranges. Keep all faces of a group together. Do not rotate or stretch individual faces.",
+  "leftPostDecision": "The partly occluded left post stays attached to the rigid floating core.",
+  "topSupportDecision": "AI lid, all supports and main body float together as one original image in the legacy-named cube-static.webp.",
+  "occlusionConstraint": "All three layers share the core displacement. Right and front add only upward 28/36 pixels relative to the core, preserving the checked occlusion.",
+  "productionFiles": [
+    "cube-static.webp",
+    "cube-right.webp",
+    "cube-front.webp"
+  ],
+  "historicalFilesNotUsed": [
+    "cube-body.webp",
+    "cube-top.webp"
+  ],
+  "validation": {
+    "nontransparentSourcePixels": 292167,
+    "missingPixels": 0,
+    "overlappingPixels": 0,
+    "maxAlphaDifference": 0,
+    "maxVisibleRGBDifference": 0,
+    "alphaCompositeMatchesSource": true,
+    "addedShadowPixels": 0
+  }
+}

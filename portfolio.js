@@ -13,6 +13,11 @@
 
   const root = document.documentElement;
   const body = document.body;
+  document.querySelectorAll('img[data-preview]').forEach(image => {
+    const ready = () => image.classList.add('image-loaded');
+    if (image.complete && image.naturalWidth) ready();
+    else image.addEventListener('load', ready, { once: true });
+  });
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
   const header = document.querySelector('.site-header');

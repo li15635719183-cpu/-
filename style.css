@@ -323,3 +323,6 @@ dialog[open]{animation:dialog-enter .35s var(--ease)}
   .work-row-heading h3{font-size:18px}
   .work-row-heading h3>span{font-size:7px;margin-left:10px}
 }
+
+/* Small previews remain visible until responsive artwork has decoded. */
+img[data-preview]{background-image:var(--image-preview);background-size:100% 100%;background-repeat:no-repeat}img[data-preview].image-loaded{background-image:none}

@@ -11,7 +11,7 @@
   let returningFromCase = false;
   try {
     const from = new URL(document.referrer);
-    returningFromCase = from.origin === location.origin && /\/(?:alphaclaw-launch|law-ai|alpha-618|guagua|furry-island|pet-festival|music-plan|lu-hood|portfolio)\.html$/.test(from.pathname);
+    returningFromCase = from.origin === location.origin && /\/(?:alphaclaw-launch|law-ai|alpha-618|guagua|furry-island|pet-festival|music-plan|lu-hood|portfolio)(?:\.html)?\/?$/.test(from.pathname);
   } catch {}
   if (sectionHash && (previouslyOpened || returningFromCase)) {
     page.dataset.entryUnlocked = 'true';

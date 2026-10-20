@@ -14,6 +14,49 @@
   const closeButton = viewer.querySelector('.viewer-close');
   let current = 0;
   let opener;
+  let fullSource = '';
+  let resolutionRequest;
+  let imageRevision = 0;
+
+  image.addEventListener('load', () => { image.style.backgroundImage = 'none'; });
+
+  function cancelResolutionRequest() {
+    imageRevision++;
+    if (resolutionRequest) {
+      resolutionRequest.onload = null;
+      resolutionRequest.onerror = null;
+      resolutionRequest.src = '';
+      resolutionRequest = null;
+    }
+    zoomButton.removeAttribute('aria-busy');
+    zoomButton.removeAttribute('title');
+  }
+
+  function loadFullResolution() {
+    if (!fullSource || image.src === fullSource || resolutionRequest) return;
+    const revision = imageRevision;
+    const request = new Image();
+    request.decoding = 'async';
+    request.fetchPriority = 'high';
+    zoomButton.setAttribute('aria-busy', 'true');
+    zoomButton.textContent = '正在加载高清…';
+    request.onload = () => {
+      if (revision !== imageRevision || !viewer.open) return;
+      resolutionRequest = null;
+      image.src = fullSource;
+      zoomButton.removeAttribute('aria-busy');
+      zoomButton.textContent = stage.classList.contains('is-zoomed') ? '适应屏幕 −' : '放大细节 ＋';
+    };
+    request.onerror = () => {
+      if (revision !== imageRevision) return;
+      resolutionRequest = null;
+      zoomButton.removeAttribute('aria-busy');
+      zoomButton.textContent = stage.classList.contains('is-zoomed') ? '适应屏幕 −' : '放大细节 ＋';
+      zoomButton.title = '高清图片暂时未加载，再次放大可重试。';
+    };
+    resolutionRequest = request;
+    request.src = fullSource;
+  }
 
   function setZoom(zoomed) {
     stage.classList.toggle('is-zoomed', zoomed);
@@ -24,13 +67,17 @@
   }
 
   function showImage(index) {
+    cancelResolutionRequest();
     current = (index + links.length) % links.length;
     const link = links[current];
     const source = link.querySelector('img');
     image.width = Number(source.getAttribute('width'));
     image.height = Number(source.getAttribute('height'));
     stage.style.setProperty('--image-detail-width', `${Number(link.dataset.detailWidth) || 2400}px`);
-    image.src = link.href;
+    fullSource = link.href;
+    image.style.backgroundImage = source.style.getPropertyValue('--image-preview') || 'none';
+    image.style.backgroundSize = '100% 100%';
+    image.src = source.currentSrc || source.src;
     image.alt = source.alt;
     caption.textContent = `${String(current + 1).padStart(2, '0')} / ${String(links.length).padStart(2, '0')} · ${link.closest('figure').querySelector('figcaption > span').textContent.split(' / ')[1]}`;
     setZoom(false);
@@ -51,7 +98,12 @@
   closeButton.addEventListener('click', () => viewer.close());
   viewer.querySelector('#viewer-prev').addEventListener('click', () => showImage(current - 1));
   viewer.querySelector('#viewer-next').addEventListener('click', () => showImage(current + 1));
-  zoomButton.addEventListener('click', () => setZoom(zoomButton.getAttribute('aria-pressed') !== 'true'));
+  zoomButton.addEventListener('click', () => {
+    const zoomed = zoomButton.getAttribute('aria-pressed') !== 'true';
+    if (!zoomed) cancelResolutionRequest();
+    setZoom(zoomed);
+    if (zoomed) loadFullResolution();
+  });
   viewer.addEventListener('keydown', event => {
     if (stage.classList.contains('is-zoomed')) return;
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
@@ -60,8 +112,10 @@
     }
   });
   viewer.addEventListener('close', () => {
+    cancelResolutionRequest();
     document.documentElement.classList.remove('case-viewer-open');
     opener?.focus({ preventScroll: true });
     image.removeAttribute('src');
+    image.style.backgroundImage = 'none';
   });
 })();

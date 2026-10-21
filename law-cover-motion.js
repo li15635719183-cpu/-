@@ -1,98 +1,115 @@
 (() => {
   'use strict';
-  const covers=[...document.querySelectorAll('[data-law-motion]')];
-  if(!covers.length)return;
+  const scriptURL=document.currentScript.src;
+  const folder=new URL('./assets/law-ai/motion/',scriptURL);
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  const folder=new URL('./assets/law-ai/motion/',document.currentScript.src);
-  const controllers=[];
-  let source;
-  const getJSON=name=>fetch(new URL(name,folder)).then(response=>{
-    if(!response.ok)throw new Error('Original motion asset unavailable');
-    return response.json();
-  });
-  const loadSource=()=>source ||= Promise.all([
-    import('./assets/vendor/three.module.js'),import('./law-original-ring.js'),
-    getJSON('layers.json'),getJSON('perspective.json'),getJSON('ring-lightmaps.json')
-  ]);
-  class OriginalCover {
-    constructor(element){
-      this.element=element;this.visible=false;this.time=0;this.frame=0;
-      element.dataset.motionState='static';
-      element.dataset.motionRenderer='original-continuous-track';
-      element.dataset.motionMode='continuous-short-cycle';
-      element.dataset.motionCoreRig='ai-cap-support-body-together';
-      this.observer=new IntersectionObserver(entries=>{
-        this.visible=entries[0].isIntersecting;void this.sync();
-      });this.observer.observe(element);
-      this.resize=new ResizeObserver(()=>{
-        if(this.view){this.view.size(element.clientWidth,element.clientHeight);this.view.render(this.time);}
-        void this.sync();
-      });this.resize.observe(element);
+  const members=new Map();
+  let source,view,loading,frame=0,last=0,time=0,retries=0,retryTimer=0;
+  const runtimeURL='./assets/entry/law-motion.c09b8ad3daf3.js';
+  const manifestURL='assets.7b65554f380f.json';
+  const getJSON=async name=>{
+    let error;
+    for(let attempt=0;attempt<3;attempt++){
+      try{
+        const url=new URL(name,folder);
+        if(attempt)url.searchParams.set('retry',String(attempt));
+        const response=await fetch(url);
+        if(!response.ok)throw new Error('Motion asset unavailable: '+response.status);
+        return await response.json();
+      }catch(cause){error=cause;}
     }
-    allowed(){
-      return !reduced.matches&&!document.hidden&&!document.querySelector('dialog[open]')
-        &&!document.documentElement.classList.contains('case-viewer-open');
-    }
-    prepare(){
-      return this.loading ||= loadSource().then(async([THREE,module,config,projection,light])=>{
-        this.view=await module.createOriginalRingRenderer(THREE,config,projection,light,folder);
-        this.view.canvas.addEventListener('webglcontextlost',event=>{
-          event.preventDefault();this.fail();
-        });
-        this.element.append(this.view.canvas);
-        this.view.size(this.element.clientWidth,this.element.clientHeight);
-        this.view.render(this.time);this.ready=true;
-      }).catch(error=>this.fail(error));
-    }
-    async sync(){
-      if(!this.visible||!this.allowed()||this.failed){this.stop();return;}
-      await this.prepare();
-      if(!this.visible||!this.allowed()||!this.ready||this.failed)return;
-      if(!this.frame){
-        this.last=performance.now();
-        this.frame=requestAnimationFrame(time=>this.draw(time));
+    throw error;
+  };
+  function allowed(){
+    return !reduced.matches&&!document.hidden&&!document.querySelector('dialog[open]')
+      &&!document.documentElement.classList.contains('case-viewer-open');
+  }
+  const visibleMembers=()=>[...members.values()].filter(member=>member.visible&&member.element.isConnected);
+  async function prepare(){
+    if(view)return view;
+    if(loading)return loading;
+    loading=(async()=>{
+      source ||= Promise.all([import(runtimeURL),getJSON('layers.json'),getJSON('perspective.json'),getJSON('ring-lightmaps.json'),getJSON(manifestURL)]);
+      const [runtime,config,projection,light,assets]=await source;
+      view=await runtime.createCover(config,projection,light,folder,assets);
+      view.canvas.addEventListener('webglcontextlost',event=>{
+        event.preventDefault();view.dispose();view=null;loading=null;source=null;retries=0;void sync();
+      });
+      retries=0;
+      return view;
+    })().catch(error=>{
+      loading=null;source=null;
+      for(const member of members.values()){
+        member.element.dataset.motionState='loading';
+        member.element.dataset.motionError=error.message;
       }
-    }
-    draw(now){
-      this.frame=0;
-      if(!this.visible||!this.allowed()||!this.ready){this.stop();return;}
-      this.time+=Math.min(.08,Math.max(0,(now-this.last)/1000));this.last=now;
-      const cycle=this.view.render(this.time);
-      this.element.classList.add('is-law-running');
-      this.element.dataset.motionState='auto';
-      this.element.dataset.motionStage=cycle.stage;
-      this.element.dataset.motionCycle=String(cycle.cycle);
-      if(!this.reported||this.time-this.reported>.5){
-        this.element.dataset.motionTime=this.time.toFixed(2);
-        this.element.dataset.motionAngle=cycle.angle.toFixed(1);
-        this.element.dataset.motionPhase=cycle.phase.toFixed(2);
-        this.element.dataset.motionBackOffset=cycle.backOrbitY.toFixed(1);
-        this.element.dataset.motionBackAngle=cycle.backAngle.toFixed(2);
-        this.element.dataset.motionCubeOffsets=cycle.cubeOffsets.map(piece=>piece.y.toFixed(1)).join(',');
-        this.element.dataset.motionCoreOffset=cycle.coreY.toFixed(1);
-        this.reported=this.time;
-      }
-      this.frame=requestAnimationFrame(time=>this.draw(time));
-    }
-    stop(){
-      if(this.frame)cancelAnimationFrame(this.frame);this.frame=0;
-      this.element.classList.remove('is-law-running');
-      this.element.dataset.motionState=this.failed?'fallback':'static';
-    }
-    fail(error){
-      this.failed=true;this.ready=false;this.stop();
-      if(error)this.element.dataset.motionError=error.message;
-      this.view?.canvas.remove();this.view?.dispose();
+      if(retries++<2&&!retryTimer)retryTimer=setTimeout(()=>{retryTimer=0;void sync();},1200);
+      return null;
+    });
+    return loading;
+  }
+  function stop(){
+    cancelAnimationFrame(frame);frame=0;last=0;
+    for(const member of members.values()){
+      if(!member.visible||!allowed())member.element.classList.remove('is-law-running');
     }
   }
-  covers.forEach(element=>controllers.push(new OriginalCover(element)));
-  const syncAll=()=>controllers.forEach(controller=>void controller.sync());
-  document.addEventListener('visibilitychange',syncAll);
-  window.addEventListener('focus',syncAll);
-  window.addEventListener('pageshow',syncAll);
-  window.addEventListener('pagehide',()=>controllers.forEach(controller=>controller.stop()));
-  reduced.addEventListener('change',syncAll);
-  new MutationObserver(syncAll).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
-  document.querySelectorAll('dialog').forEach(dialog=>new MutationObserver(syncAll)
-    .observe(dialog,{attributes:true,attributeFilter:['open']}));
+  function draw(now){
+    frame=0;
+    const visible=visibleMembers();
+    if(!view||!allowed()||!visible.length){stop();return;}
+    time+=last?Math.min(.08,Math.max(0,(now-last)/1000)):0;last=now;
+    const width=Math.max(...visible.map(member=>member.element.clientWidth));
+    const height=Math.max(...visible.map(member=>member.element.clientHeight));
+    if(width!==view.width||height!==view.height){view.size(width,height);view.width=width;view.height=height;}
+    const cycle=view.render(time);
+    for(const member of visible){
+      if(!member.canvas){
+        member.canvas=document.createElement('canvas');
+        member.canvas.className='law-motion-canvas';member.canvas.setAttribute('aria-hidden','true');
+        member.context=member.canvas.getContext('2d',{alpha:false});member.element.append(member.canvas);
+      }
+      const canvas=member.canvas;
+      if(canvas.width!==view.canvas.width||canvas.height!==view.canvas.height){canvas.width=view.canvas.width;canvas.height=view.canvas.height;}
+      member.context.drawImage(view.canvas,0,0);
+      member.element.classList.add('is-law-running');
+      member.element.dataset.motionState='auto';
+      member.element.dataset.motionTime=time.toFixed(2);
+      member.element.dataset.motionStage=cycle.stage;
+      delete member.element.dataset.motionError;
+    }
+    frame=requestAnimationFrame(draw);
+  }
+  function wake(){if(!frame&&view&&allowed()&&visibleMembers().length)frame=requestAnimationFrame(draw);}
+  async function sync(){
+    if(!allowed()||!visibleMembers().length){stop();return;}
+    await prepare();wake();
+  }
+  const observer=new IntersectionObserver(entries=>{
+    for(const entry of entries){const member=members.get(entry.target);if(member)member.visible=entry.isIntersecting;}
+    void sync();
+  });
+  const nearObserver=new IntersectionObserver(entries=>{
+    if(allowed()&&entries.some(entry=>entry.isIntersecting))void prepare().then(wake);
+  },{rootMargin:'500px 300px'});
+  function bind(){
+    for(const [element,member] of members)if(!element.isConnected){observer.unobserve(element);nearObserver.unobserve(element);member.canvas?.remove();members.delete(element);}
+    for(const element of document.querySelectorAll('[data-law-motion]')){
+      if(members.has(element))continue;
+      element.querySelectorAll('.law-motion-canvas').forEach(canvas=>canvas.remove());
+      element.classList.remove('is-law-running');element.dataset.motionState='loading';
+      members.set(element,{element,visible:false});observer.observe(element);nearObserver.observe(element);
+    }
+  }
+  bind();
+  new MutationObserver(records=>{
+    if(records.some(record=>[...record.addedNodes,...record.removedNodes].some(node=>node.nodeType===1&&(node.matches?.('[data-law-motion],.carousel-copy')||node.querySelector?.('[data-law-motion]')))))bind();
+  }).observe(document.body,{childList:true,subtree:true});
+  document.addEventListener('visibilitychange',sync);
+  window.addEventListener('focus',()=>{retries=0;void sync();});
+  window.addEventListener('pageshow',sync);
+  window.addEventListener('pagehide',stop);
+  reduced.addEventListener('change',sync);
+  new MutationObserver(sync).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+  document.querySelectorAll('dialog').forEach(dialog=>new MutationObserver(sync).observe(dialog,{attributes:true,attributeFilter:['open']}));
 })();

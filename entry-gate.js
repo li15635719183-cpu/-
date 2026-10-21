@@ -41,8 +41,8 @@
     if (!unlocked && event.target.closest('a[href^="#"]')) event.preventDefault();
   }, true);
 
-  const observer = new MutationObserver(() => {
-    if (unlocked || page.dataset.mail !== 'open') return;
+  function revealEntry() {
+    if (unlocked) return;
     unlocked = true;
     try { sessionStorage.setItem('llj-entry-opened', 'true'); } catch {}
     page.dataset.entryUnlocked = 'true';
@@ -53,6 +53,10 @@
     skip.removeAttribute('aria-hidden');
     observer.disconnect();
     window.dispatchEvent(new Event('entry:unlocked'));
+  }
+  const observer = new MutationObserver(() => {
+    if (page.dataset.mail === 'open') revealEntry();
   });
   observer.observe(page, { attributes: true, attributeFilter: ['data-mail'] });
+  window.addEventListener('entry:reveal', revealEntry, { once: true });
 })();

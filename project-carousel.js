@@ -154,8 +154,8 @@
     copy.querySelectorAll('a,button,[tabindex]').forEach(element => element.tabIndex = -1);
     copy.querySelectorAll('canvas').forEach(canvas => canvas.remove());
     copy.querySelectorAll('[data-law-motion]').forEach(media => {
-      media.removeAttribute('data-law-motion');
       media.classList.remove('is-law-running');
+      ['motionState','motionTime','motionAngle','motionError'].forEach(key => delete media.dataset[key]);
     });
     return copy;
   }
